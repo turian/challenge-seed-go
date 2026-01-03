@@ -114,6 +114,7 @@ func main() {
 // This is where you'll implement your SQL database!
 func execute(sql string) (string, error) {
 	sql = strings.TrimSpace(sql)
+	sql = strings.TrimSuffix(sql, ";")
 	if sql == "" {
 		return "", nil
 	}
