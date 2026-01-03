@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/vibesql-challenge/challenge-seed-go/pkg/parser"
 )
 
 // SQL Vibe Coding Challenge - Go Seed
@@ -118,6 +120,11 @@ func execute(sql string) (string, error) {
 	sql = strings.TrimSuffix(sql, ";")
 	if sql == "" {
 		return "", nil
+	}
+
+	stmt, err := parser.Parse(sql)
+	if err == nil {
+		_ = stmt
 	}
 
 	// Simple implementation to pass CREATE TABLE test cases
