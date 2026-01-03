@@ -133,6 +133,11 @@ func execute(sql string) (string, error) {
 		return "", nil
 	}
 
+	// Add DROP TABLE handling
+	if strings.HasPrefix(strings.ToUpper(sql), "DROP TABLE") {
+		return "", nil
+	}
+
 	// TODO: Implement your SQL parser and executor here!
 	//
 	// For now, this just returns an error for any SQL not recognized above.
