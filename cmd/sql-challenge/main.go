@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -21,6 +22,9 @@ func main() {
 	if len(os.Args) > 1 {
 		// File mode: execute SQL from file
 		filename := os.Args[1]
+		if isSQLLogicTestFile(filename) {
+			os.Exit(runSQLLogicTestFile(filename))
+		}
 		file, err := os.Open(filename)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error opening file: %v\n", err)
@@ -38,7 +42,11 @@ func main() {
 
 			// Execute when we hit a semicolon
 			if strings.HasSuffix(strings.TrimSpace(line), ";") {
-				result := execute(statement.String())
+				result, err := execute(statement.String())
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					os.Exit(1)
+				}
 				if result != "" {
 					fmt.Println(result)
 				}
@@ -48,7 +56,11 @@ func main() {
 
 		// Execute any remaining statement
 		if statement.Len() > 0 {
-			result := execute(statement.String())
+			result, err := execute(statement.String())
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
 			if result != "" {
 				fmt.Println(result)
 			}
@@ -86,8 +98,10 @@ func main() {
 
 			// Execute when we hit a semicolon
 			if strings.HasSuffix(strings.TrimSpace(line), ";") {
-				result := execute(statement.String())
-				if result != "" {
+				result, err := execute(statement.String())
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				} else if result != "" {
 					fmt.Println(result)
 				}
 				statement.Reset()
@@ -98,10 +112,10 @@ func main() {
 
 // execute parses and executes a SQL statement, returning the result as a string.
 // This is where you'll implement your SQL database!
-func execute(sql string) string {
+func execute(sql string) (string, error) {
 	sql = strings.TrimSpace(sql)
 	if sql == "" {
-		return ""
+		return "", nil
 	}
 
 	// TODO: Implement your SQL parser and executor here!
@@ -115,5 +129,19 @@ func execute(sql string) string {
 	// Example expected output for "SELECT 1, 2, 3":
 	// "1\t2\t3"
 
-	return "Error: SQL execution not yet implemented"
+	return "", fmt.Errorf("SQL execution not yet implemented")
+}
+
+func execStatement(sql string) error {
+	_, err := execute(sql)
+	return err
+}
+
+func execQuery(sql string) ([][]string, error) {
+	return nil, fmt.Errorf("SQL query execution not yet implemented")
+}
+
+func isSQLLogicTestFile(path string) bool {
+	ext := strings.ToLower(filepath.Ext(path))
+	return ext == ".test"
 }
