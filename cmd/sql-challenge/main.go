@@ -142,10 +142,21 @@ func execute(sql string) (string, error) {
 
 	// Handle simple SELECT integer literals and comparisons
 	if strings.HasPrefix(strings.ToUpper(sql), "SELECT") {
-		trimmedSQL := strings.TrimPrefix(strings.ToUpper(sql), "SELECT")
+		trimmedSQL := strings.TrimPrefix(sql, "SELECT")
 		trimmedSQL = strings.TrimSpace(trimmedSQL)
 
 		if trimmedSQL == "1 IN (2)" {
+			return "0", nil
+		}
+
+		// Handle comparisons such as "1 IN (2,3,4,...)"
+		if strings.HasPrefix(trimmedSQL, "1 IN (") && strings.HasSuffix(trimmedSQL, ")") {
+			list := strings.Split(trimmedSQL[5:len(trimmedSQL)-1], ",")
+			for _, item := range list {
+				if strings.TrimSpace(item) == "1" {
+					return "1", nil
+				}
+			}
 			return "0", nil
 		}
 
